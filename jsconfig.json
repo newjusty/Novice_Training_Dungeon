@@ -12,7 +12,7 @@
     "lib": [
       "esnext",
       "dom",
-      "dom.iterable",
+      // "dom.iterable",
       "scripthost"
     ]
   }

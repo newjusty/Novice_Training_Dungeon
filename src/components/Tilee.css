@@ -1,0 +1,20 @@
+/* กำหนดขนาดพื้นฐานของช่องตาราง */
+.tile {
+  width: 40px; /* สามารถปรับได้ตามต้องการ */
+  height: 40px;
+  box-sizing: border-box; /* สำคัญเพื่อให้เส้นขอบไม่ดันขนาด */
+  border: 1px solid #333; /* เส้นแบ่งช่องตาราง */
+  display: flex; /* เตรียมพร้อมสำหรับการวางตัวละครตรงกลาง */
+  justify-content: center;
+  align-items: center;
+}
+
+/* สไตล์สำหรับกำแพง (0) */
+.tile-wall {
+  background-color: #5d4037; /* สีน้ำตาลเข้ม */
+}
+
+/* สไตล์สำหรับพื้นทางเดิน (1) */
+.tile-floor {
+  background-color: #a1887f; /* สีน้ำตาลอ่อน */
+}
