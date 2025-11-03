@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "deploy": "shx rm -rf node_modules/gh-pages/node_modules && vue-cli-service build && gh-pages -d dist",
+    "deploy": "vue-cli-service build && gh-pages -d dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
