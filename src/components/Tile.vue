@@ -1,15 +1,19 @@
 <template>
-  <div :class="tileClass" class="tile"></div>
+  <div :class="tileClass" class="tile" @click="$emit('click')"> 
+    <div v-if="unit" :class="unitClass">
+      {{ unitIcon }}
+    </div>
+  </div>
 </template>
 
 <script>
-// (ส่วน Script เดิม)
 export default {
+  emits: ['click'],
   props: {
-    tileType: {
-      type: Number,
-      required: true
-    }
+    tileType: { type: Number, required: true },
+    x: { type: Number, required: true }, 
+    y: { type: Number, required: true }, 
+    unit: { type: Object, default: null } 
   },
   computed: {
     tileClass() {
@@ -17,14 +21,33 @@ export default {
         'tile-wall': this.tileType === 0,
         'tile-floor': this.tileType === 1
       };
+    },
+    unitClass() {
+      if (!this.unit) return {};
+      return {
+        'unit-novice': this.unit.type === 'novice',
+        'unit-monster': this.unit.type === 'monster',
+      };
+    },
+    unitIcon() {
+      if (!this.unit) return '';
+      return this.unit.type === 'novice' ? '🧑' : '👾';
     }
   }
 }
 </script>
-
 <style>
-/* ใช้ @import ในแท็ก <style> ธรรมดา (ไม่ใช่ scoped)
-  เพื่อดึงสไตล์จากไฟล์ภายนอก 
-*/
-@import './Tilee.css';
+@import './Tile.css';
+
+/* เพิ่มสไตล์สำหรับ Unit ในไฟล์ styles/tile.css หรือใน Tile.vue นี้ก็ได้ */
+.unit-novice {
+  pointer-events: none;
+  font-size: 20px; /* ขนาดไอคอนตัวละคร */
+  color: blue;
+}
+.unit-monster {
+  pointer-events: none;
+  font-size: 20px;
+  color: red;
+}
 </style>
