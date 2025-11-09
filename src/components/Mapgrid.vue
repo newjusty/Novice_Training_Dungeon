@@ -39,7 +39,7 @@ export default {
     methods: {
         getUnitAt(x, y) {
             return this.allUnits.find(unit => 
-                unit && unit.position && unit.position.x === x && unit.position.y === y
+                unit && unit.position && unit.position.x === x && unit.position.y === y && unit.stats.hp > 0
             );
         },
         clickTile(x, y) {
@@ -52,7 +52,7 @@ export default {
             // 1. Logic การเลือกตัวละคร (Novice Selection)
             // ------------------------------------
             if (isNoviceTurn && clickedUnit && clickedUnit.type === 'novice') {
-                if (!clickedUnit.hasActed) {
+                if (!clickedUnit.hasUsedAction) {
                     // คลิก Novice ที่ยังไม่ได้เล่น -> เลือกตัวนี้
                     this.selectNovice(clickedUnit.id);
                     this.gameState.currentAction = null; // รีเซ็ตโหมดการกระทำเมื่อเลือกตัวใหม่
@@ -102,7 +102,7 @@ export default {
                         // 2. ล้างสถานะ Targeting 
                         this.gameState.currentAction = null; 
                         this.gameState.currentSkill = null;
-                        this.gameState.currentUnitId = null; // Novice ตัวนี้เล่นแล้ว
+                        this.gameState.currentUnitId = null; 
                         
                         // 3. useSkill จะเรียก advanceTurn() ให้เราแล้ว
                         return;
@@ -125,7 +125,7 @@ export default {
         
         selectNovice(unitId) {
             const unit = getUnitById(unitId);
-            if (unit.type === 'novice' && !unit.hasActed) {
+            if (unit.type === 'novice' && !unit.hasUsedAction) { 
                 this.gameState.currentUnitId = unitId;
                 addLog(`Novice: ${unit.name} ถูกเลือก`);
             }

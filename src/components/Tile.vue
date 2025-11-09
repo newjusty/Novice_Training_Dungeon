@@ -1,6 +1,6 @@
 <template>
   <div :class="tileClass" class="tile" @click="$emit('click')"> 
-    <div v-if="unit" :class="unitClass">
+    <div v-if="unit && unit.stats.hp > 0" :class="unitClass"> 
       {{ unitIcon }}
     </div>
   </div>
@@ -30,7 +30,8 @@ export default {
       };
     },
     unitIcon() {
-      if (!this.unit) return '';
+      // 🌟 Logic ใน computed นี้ควรเป็นแค่การเลือก Icon
+      if (!this.unit || this.unit.stats.hp <= 0) return ''; // ควรถูกจัดการโดย v-if
       return this.unit.type === 'novice' ? '🧑' : '👾';
     }
   }

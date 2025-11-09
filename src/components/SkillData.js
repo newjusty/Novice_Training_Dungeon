@@ -1,8 +1,5 @@
 // \training_novice\src\components\SkillData.js
 
-/**
- * โครงสร้างพื้นฐานของ Skill
- */
 const baseSkill = {
     name: '',
     description: '',
@@ -22,7 +19,7 @@ export const NoviceSkills = [
         logic: (source, target) => {
             // โค้ดนี้จะถูกเรียกใช้ใน Game Logic
             return {
-                damage: source.stats.attack, // ส่งค่า Attack กลับไปคำนวณ
+                baseDamage: source.stats.attack, // ส่งค่า Attack กลับไปคำนวณ
                 isAttack: true
             };
         }
@@ -67,7 +64,7 @@ export const MonsterSkills = [
         range: 1,
         logic: (source, target) => {
             return {
-                damage: source.stats.attack,
+                baseDamage: source.stats.attack,
                 isAttack: true
             };
         }

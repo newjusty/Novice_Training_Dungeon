@@ -37,22 +37,22 @@ export function spawnNovices() {
         // 🚨 ประกาศและกำหนดค่าตัวแปร 'position' ที่นี่!
         const position = getRandomPosition(9, 1, 9, currentPositions); 
         
-        currentPositions.push(position); // เพิ่มตำแหน่งที่ถูกจองแล้ว
+        currentPositions.push(position);
 
         const novice = {
             ...baseUnit,
             id: `N${i + 1}`,
             name: `Novice ${i + 1}`,
             type: 'novice',
-            position: position, // ✅ ตอนนี้ 'position' ถูกกำหนดแล้ว
+            position: position, 
             stats: {
                 hp: 20,
                 maxHp: 20,
                 defense: 5,
                 attack: 5,
             },
-            hasMoved: false,     // ✅ สถานะเริ่มต้น
-            hasUsedAction: false, // ✅ สถานะเริ่มต้น
+            hasMoved: false,   
+            hasUsedAction: false, 
             isBlocking: false,   
             skills: NoviceSkills,
             moveRange: 2
@@ -81,11 +81,11 @@ export function spawnMonsters() {
         stats: {
             hp: 10,
             maxHp: 10,
-            defense: 5,
-            attack: 3,
-            speed: monsterBaseSpeed - i, // 5, 4 ✅ ใส่คอมมา
+            defense: 3,
+            attack: 6,
+            speed: monsterBaseSpeed - i,
         }, 
-        skills: MonsterSkills // ✅ ย้าย skills มาที่ Object หลัก (baseUnit มี property 'skills' อยู่แล้ว)
+        skills: MonsterSkills 
     };
     gameState.monsters.push(monster);
 }

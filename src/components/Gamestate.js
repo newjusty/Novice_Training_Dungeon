@@ -25,5 +25,6 @@ export const gameState = reactive({
   currentUnitId: null,   
   currentAction: null, 
   currentSkill: null,
+  gameStatus: 'playing',
   log: []                
 });
