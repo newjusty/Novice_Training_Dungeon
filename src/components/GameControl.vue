@@ -52,7 +52,7 @@
 
 <script>
 import { gameState } from './Gamestate.js';
-import { advanceTurn, getUnitById, addLog, passTurn, useSkill } from './GameLogic.js'; 
+import { advanceTurn, getUnitById, addLog, passTurn, useSkill, getAvailableTiles } from './GameLogic.js'; 
 
 export default {
     data() {
@@ -93,8 +93,16 @@ export default {
             }
         },
         setAction(action) {
-            this.actionState = action;
+            this.actionState = action; 
             this.selectedSkill = null;
+            gameState.highlightedTiles = []; // รีเซ็ตทุกครั้งที่เปลี่ยนโหมด
+
+            if (action === 'walk') {
+                const currentUnit = this.currentUnit;
+                if (currentUnit) {
+                    gameState.highlightedTiles = getAvailableTiles(currentUnit, 'move');
+                }
+            }
         },
         
         // 🌟 ฟังก์ชันใหม่สำหรับใช้ Skill
@@ -117,9 +125,10 @@ export default {
             addLog(`เลือก Skill: ${skill.name} (R: ${skill.range})`);
             
             // ถ้าเป็น Skill ที่ไม่ต้องการเป้าหมาย (Block, Heal)
-            if (skill.range === 0) {
-                // ใช้ Skill ระยะ 0 กับตัวเองทันที
-                this.executeSkill(this.currentUnit, skill); 
+            if (skill.range > 0) {
+                this.actionState = 'targeting';
+                // 🌟 คำนวณช่องโจมตี (ศัตรู) และอัปเดต State
+                gameState.highlightedTiles = getAvailableTiles(this.currentUnit, 'target');
             }
         },
     }

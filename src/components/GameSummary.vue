@@ -50,7 +50,7 @@ export default {
 }
 .summary-box {
     padding: 40px;
-    border-radius: 10px;
+    border-radius: 10px; 
     text-align: center;
     color: white;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);

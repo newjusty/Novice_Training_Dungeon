@@ -26,5 +26,11 @@ export const gameState = reactive({
   currentAction: null, 
   currentSkill: null,
   gameStatus: 'playing',
-  log: []                
+  highlightedTiles: [], 
+  log: [],
+  interstitial: {
+        show: false,         // แสดงฉากคั่นหรือไม่
+        message: '',         // ข้อความที่แสดง
+        phase: '' 
+  }               
 });

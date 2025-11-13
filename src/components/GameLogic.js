@@ -1,6 +1,6 @@
 // \training_novice\src\components\GameLogic.js
 import { gameState } from './Gamestate.js';
-import { takeTurn } from './MonsterAI.js';
+import { takeTurn,isPositionOccupied } from './MonsterAI.js';
 
 /** ฟังก์ชันเริ่มต้น/รีเซ็ตลำดับการเล่นทั้งหมด*/
 export function startTurnPhase() {
@@ -49,18 +49,21 @@ export async function advanceTurn() {
 
         // 2. ถ้า Novice ที่มี Action เหลืออยู่เป็น 0 (ทุกคนเล่นครบแล้วหรือตายหมดแล้ว)
         if (activeNovices.length === 0) {
-            gameState.currentTurn = 'monster';
-            addLog(`--- Novice Phase จบลง: เริ่ม Monster Phase! ---`);
+            gameState.interstitial.message = "⚔️ ถึงเทิร์นของ MONSTER! 👾";
+            gameState.interstitial.phase = 'monster';
+            gameState.interstitial.show = true;
             
-            // 3. เรียก advanceTurn() ซ้ำทันที เพื่อเริ่ม Monster Phase Logic
-            advanceTurn(); 
+            // 2. ตั้งเวลาเพื่อซ่อนฉากคั่นและเริ่ม Phase ต่อไป
+            setTimeout(() => {
+                gameState.currentTurn = 'monster';
+                gameState.interstitial.show = false; // ซ่อนฉากคั่น
+                advanceTurn(); // เริ่ม Monster Phase
+            }, 1000); // หน่วงเวลา 1 วินาทีเพื่อให้ผู้เล่นอ่านข้อความ
+            
             return; 
-        }
-        
-        // ถ้า Novice ยังมี Action เหลือ (activeNovices.length > 0)
-        // เกมจะหยุดรอผู้เล่นเลือก Novice หรือ Action ต่อไป
-        return; 
     }
+    return; 
+}
 
     // ------------------------------------
     // 🌟 Monster Phase Logic
@@ -80,15 +83,32 @@ export async function advanceTurn() {
             
             if (currentMonster) {
                 addLog(`🤖 เทิร์นของ Monster: [${currentMonster.name}] กำลังคิด...`);
-                await takeTurn(currentMonster);
 
-                advanceTurn();
-                return; 
+                // 🚨 ปรับค่า 50 เป็นเวลาหน่วงที่ต้องการ (หน่วยเป็นมิลลิวินาที)
+                setTimeout(() => {
+                    const botUnit = getUnitById(gameState.currentUnitId);
+                    if (botUnit) takeTurn(botUnit); 
+                }, 500); // ✅ ตัวอย่าง: หน่วง 0.5 วินาที
+                
+                return;
+                // await takeTurn(currentMonster);
+                // advanceTurn();
+                // return; 
             }
         } 
         
         if (remainingMonsters.length === 0) {
-            startTurnPhase(); 
+            // 🌟 1. ตั้งค่าฉากคั่น Novice
+            gameState.interstitial.message = "💡 ถึงเทิร์นของ NOVICE! 🧑";
+            gameState.interstitial.phase = 'novice';
+            gameState.interstitial.show = true;
+            
+            // 2. ตั้งเวลาเพื่อซ่อนฉากคั่นและเริ่ม Phase ต่อไป
+            setTimeout(() => {
+                gameState.interstitial.show = false; // ซ่อนฉากคั่น
+                startTurnPhase(); // รีเซ็ตสถานะและเริ่ม Novice Phase
+            }, 1000);
+            
             return;
         }
     }
@@ -101,8 +121,16 @@ export async function advanceTurn() {
 /**
  * ค้นหา Unit จาก ID
  */
-export function getUnitById(unitId) {
-    return [...gameState.novices, ...gameState.monsters].find(u => u.id === unitId);
+export function getUnitById(unitId, x = null, y = null) {
+    const allUnits = [...gameState.novices, ...gameState.monsters];
+    
+    if (unitId) {
+        return allUnits.find(u => u.id === unitId);
+    }
+    if (x !== null && y !== null) {
+        return allUnits.find(u => u.position.x === x && u.position.y === y);
+    }
+    return null;
 }
 
 /**
@@ -156,11 +184,13 @@ export function attemptMove(unit, x, y) {
     unit.hasMoved = true; // เสร็จสิ้นการกระทำ (เดิน)
     addLog(`[${unit.name}] เคลื่อนที่ไปที่ (${x}, ${y})`);
     
+    // ✅ เพิ่ม: เคลียร์ไฮไลต์หลังการเดินสำเร็จ 
+    gameState.highlightedTiles = [];
+    
     // หากเป็น Monster จะต้องถือว่าจบ Action ทันที
     if (unit.type === 'monster') {
         // Monster จะใช้ Action ทั้งหมดในการเดิน/โจมตี/สกิล
         unit.hasUsedAction = true;
-        advanceTurn(); 
     }
     // Novice: ไม่ต้องเรียก advanceTurn() ที่นี่ เพราะผู้เล่นอาจต้องการใช้ Skill ต่อ
     return true;
@@ -277,9 +307,10 @@ export function useSkill(source, target, skill) {
     }
 
     // 4. จัดการสถานะและจบเทิร์น
-    source.hasUsedAction = true; // ✅ ใช้ Skill ถือเป็น Main Action 1 ครั้ง
+    source.hasUsedAction = true; // ใช้ Action (Skill) แล้ว
     gameState.currentUnitId = null; 
     addLog(`[${source.name}] ใช้ Skill: ${skill.name}`);
+    gameState.highlightedTiles = [];
 
     // 5. จัดการ Advance Turn
     // 💡 Logic นี้ถูกต้องแล้ว: useSkill จะเซ็ต hasUsedAction = true และ advanceTurn() จะตรวจสอบว่า Novice ครบทุกคนหรือยัง
@@ -310,3 +341,52 @@ export function checkWinCondition() {
     return false;
 }
 
+// ฟังก์ชันสำหรับใช้คำนวณระยะทาง (ต้องแน่ใจว่ามีอยู่ในไฟล์ที่ถูก import หรือสร้างใหม่)
+function getDistance(pos1, pos2) {
+    return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y);
+}
+
+/**
+ * คำนวณและคืนค่าลิสต์ของพิกัดที่สามารถไฮไลต์ได้
+ * @param {object} unit - ยูนิตที่กำลังกระทำ
+ * @param {string} mode - 'move' หรือ 'target'
+ * @returns {Array<{x: number, y: number, type: string}>}
+ */
+export function getAvailableTiles(unit, mode) {
+    if (!unit) return [];
+    
+    const startPos = unit.position;
+    const maxRange = (mode === 'move' ? unit.moveRange : unit.skills.find(s => s.name === 'Attack')?.range) || 0;
+    const tiles = [];
+    
+    // วนลูปทั่วแผนที่ (1x1 ถึง 9x9)
+    for (let x = 1; x <= 9; x++) {
+        for (let y = 1; y <= 9; y++) {
+            const distance = getDistance(startPos, { x, y });
+            
+            // 1. ตรวจสอบระยะทางที่กำหนด
+            if (distance > 0 && distance <= maxRange) {
+                
+                // 2. ตรวจสอบว่ามี Unit อื่นยืนอยู่หรือไม่ (สำคัญสำหรับ Move)
+                const targetUnit = getUnitById(null, x, y); // ต้องปรับ getUnitById ให้รับ x, y 
+                
+                if (mode === 'move') {
+                    // โหมดเดิน: ต้องว่างเปล่า
+                    if (!isPositionOccupied(x, y)) { // 💡 ฟังก์ชันนี้ถูกสร้างไว้ใน MonsterAI.js ต้อง import/สร้างใหม่
+                        tiles.push({ x, y, type: 'move' });
+                    }
+                } 
+                else if (mode === 'target') {
+                    const skill = unit.skills.find(s => s.name === 'Attack');
+                    if (targetUnit && targetUnit.stats.hp > 0 && targetUnit.type !== unit.type) { 
+                        // โหมดโจมตี: ต้องมี Unit ศัตรูที่มีชีวิต
+                        if (skill && distance <= skill.range) {
+                            tiles.push({ x, y, type: 'target' });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return tiles;
+}

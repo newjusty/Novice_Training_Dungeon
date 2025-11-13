@@ -8,7 +8,8 @@
         :x="colIndex"
         :y="rowIndex"
         :unit="getUnitAt(colIndex, rowIndex)"
-        @click="clickTile(colIndex, rowIndex)" /> </div>
+        @click="clickTile(colIndex, rowIndex)" 
+        :is-highlighted="isTileHighlighted(colIndex, rowIndex)" /> </div>
   </div>
 </template>
 
@@ -37,6 +38,9 @@ export default {
         }
     },
     methods: {
+        isTileHighlighted(x, y) {
+            return gameState.highlightedTiles.find(t => t.x === x && t.y === y) || null;
+        },
         getUnitAt(x, y) {
             return this.allUnits.find(unit => 
                 unit && unit.position && unit.position.x === x && unit.position.y === y && unit.stats.hp > 0
@@ -55,7 +59,8 @@ export default {
                 if (!clickedUnit.hasUsedAction) {
                     // คลิก Novice ที่ยังไม่ได้เล่น -> เลือกตัวนี้
                     this.selectNovice(clickedUnit.id);
-                    this.gameState.currentAction = null; // รีเซ็ตโหมดการกระทำเมื่อเลือกตัวใหม่
+                    this.gameState.currentAction = null; 
+                    this.gameState.highlightedTiles = [];
                     return;
                 } else if (clickedUnit.id === currentUnitId) {
                     // คลิกซ้ำที่ Novice ที่กำลังถูกเลือกอยู่ -> ยกเลิกการเลือก
@@ -119,6 +124,7 @@ export default {
                 this.gameState.currentUnitId = null;
                 this.gameState.currentAction = null;
                 this.gameState.currentSkill = null;
+                this.gameState.highlightedTiles = [];
                 addLog("ยกเลิกการเลือก Novice");
             }
         },

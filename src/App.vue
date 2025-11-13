@@ -9,6 +9,7 @@
     </div>
     <GameLog />
     <GameSummary @restart-game="resetGame" /> 
+    <TurnInterstitial />
   </div>
 </template>
 
@@ -21,6 +22,7 @@ import GameControl from './components/GameControl.vue';
 import GameSummary from './components/GameSummary.vue';
 import { initializeGame } from './components/UnitSpawner.js';
 import { startTurnPhase, addLog} from './components/GameLogic.js'; 
+import TurnInterstitial from './components/TurnInterstitial.vue';
 
 export default {
   name: 'App',
@@ -29,7 +31,8 @@ export default {
     StatusPanel,
     GameLog,
     GameControl,
-    GameSummary
+    GameSummary,
+    TurnInterstitial
   },
   methods: {
         resetGame() {

@@ -69,6 +69,7 @@ export function takeTurn(monster) {
         addLog(`[${monster.name}] กำลังรักษาตัวเอง...`);
         // Monster ใช้ Skill (Skill range = 0, target = ตัวเอง)
         useSkill(monster, monster, healSkill); 
+        setTimeout(() => { advanceTurn(); }, 1000);
         return;
     }
 
@@ -81,6 +82,7 @@ export function takeTurn(monster) {
         addLog(`[${monster.name}] โจมตี ${nearestNovice.name}!`);
         // Monster ใช้ Skill (Attack range = 1, target = Novice ที่ใกล้ที่สุด)
         useSkill(monster, nearestNovice, attackSkill);
+        setTimeout(() => { advanceTurn(); }, 1000);
         return;
     }
 
@@ -94,6 +96,7 @@ export function takeTurn(monster) {
         if (targetPos) {
             const moveSuccessful = attemptMove(monster, targetPos.x, targetPos.y);
             if (moveSuccessful) {
+                setTimeout(() => { advanceTurn(); }, 1000);
                 return; // ถ้าสำเร็จ advanceTurn ถูกเรียกแล้ว
             }
         }
@@ -104,7 +107,7 @@ export function takeTurn(monster) {
     // ------------------------------------
     addLog(`[${monster.name}] ไม่สามารถกระทำได้, ผ่านเทิร์น.`);
     monster.hasUsedAction = true; 
-    advanceTurn();
+    setTimeout(() => { advanceTurn(); }, 1000);
 }
 
 // **********************************************
@@ -173,7 +176,7 @@ function getMovementTarget(monster, target, currentDistance) {
  * ตรวจสอบว่าตำแหน่ง (x, y) มี Unit อื่นยืนอยู่หรือไม่
  * (นำเข้าจาก MonsterAI.js ที่เราเคยสร้างไว้)
  */
-function isPositionOccupied(x, y, currentUnitId = null) {
+export function isPositionOccupied(x, y, currentUnitId = null) {
     // รวม Novices และ Monsters ทั้งหมด
     const allUnits = [...gameState.novices, ...gameState.monsters]
         // ✅ กรอง Unit ที่ตายแล้ว
